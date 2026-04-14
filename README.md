@@ -130,3 +130,4 @@ See `outputs/comparison_results.csv` for raw data and `outputs/analysis_report.m
 **Models tested**:
 - **Model A**: `claude-opus-4-6` — Role-Playing + Few-Shot + Chain-of-Thought prompting
 - **Model B**: `claude-haiku-4-5` — Simple zero-shot prompting (baseline)
+# Email-gen-Assistant
