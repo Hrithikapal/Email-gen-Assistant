@@ -28,14 +28,16 @@ def run_evaluation(
     model: str = "claude-opus-4-6",
     use_advanced_prompting: bool = True,
     output_tag: str = "model_a",
+    provider: str = "anthropic",
 ) -> dict:
     """
     Run the full evaluation pipeline.
 
     Args:
-        model:                  Claude model ID to generate emails.
+        model:                  Model ID to generate emails.
         use_advanced_prompting: If True, uses Role-Playing + Few-Shot + CoT.
         output_tag:             Label appended to output filenames.
+        provider:               "anthropic" or "groq".
 
     Returns:
         dict containing scenario results and aggregate stats.
@@ -64,6 +66,7 @@ def run_evaluation(
             tone=scenario["tone"],
             model=model,
             use_advanced_prompting=use_advanced_prompting,
+            provider=provider,
         )
         email_text = gen_result["email_text"]
 

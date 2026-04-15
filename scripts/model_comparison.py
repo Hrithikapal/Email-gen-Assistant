@@ -4,8 +4,8 @@ Model Comparison Script
 Runs the full evaluation against two strategies and produces a side-by-side
 comparison report plus a single-page analysis summary.
 
-Strategy A (Model A): claude-opus-4-6  — Role-Playing + Few-Shot + Chain-of-Thought
-Strategy B (Model B): claude-haiku-4-5 — Simple zero-shot baseline prompt
+Strategy A (Model A): claude-opus-4-6 (Anthropic)         — Role-Playing + Few-Shot + Chain-of-Thought
+Strategy B (Model B): llama-3.3-70b-versatile (Groq)      — Simple zero-shot baseline prompt
 
 Usage:
     python scripts/model_comparison.py
@@ -31,23 +31,25 @@ def run_comparison() -> None:
     print("=" * 60)
 
     # ------------------------------------------------------------------ #
-    # Model A — Advanced prompting with Opus                              #
+    # Model A — Advanced prompting with Opus (Anthropic)                  #
     # ------------------------------------------------------------------ #
     data_a = run_evaluation(
         model="claude-opus-4-6",
         use_advanced_prompting=True,
         output_tag="model_a",
+        provider="anthropic",
     )
     save_json(data_a, os.path.join(OUTPUT_DIR, "evaluation_model_a.json"))
     save_csv(data_a,  os.path.join(OUTPUT_DIR, "evaluation_model_a.csv"))
 
     # ------------------------------------------------------------------ #
-    # Model B — Baseline prompt with Haiku                                #
+    # Model B — Baseline prompt with Llama 3.3 70B (Groq)                #
     # ------------------------------------------------------------------ #
     data_b = run_evaluation(
-        model="claude-haiku-4-5",
+        model="llama-3.3-70b-versatile",
         use_advanced_prompting=False,
         output_tag="model_b",
+        provider="groq",
     )
     save_json(data_b, os.path.join(OUTPUT_DIR, "evaluation_model_b.json"))
     save_csv(data_b,  os.path.join(OUTPUT_DIR, "evaluation_model_b.csv"))
@@ -100,13 +102,13 @@ def build_comparison(data_a: dict, data_b: dict) -> dict:
     return {
         "timestamp": datetime.utcnow().isoformat(),
         "strategy_a": {
-            "label": "Model A — claude-opus-4-6 + Advanced Prompting",
+            "label": "Model A — claude-opus-4-6 (Anthropic) + Advanced Prompting",
             "model": data_a["model"],
             "prompting": "Role-Playing + Few-Shot + Chain-of-Thought",
             "averages": data_a["averages"],
         },
         "strategy_b": {
-            "label": "Model B — claude-haiku-4-5 + Simple Prompting",
+            "label": "Model B — llama-3.3-70b-versatile (Groq) + Simple Prompting",
             "model": data_b["model"],
             "prompting": "Zero-shot baseline",
             "averages": data_b["averages"],

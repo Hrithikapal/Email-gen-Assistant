@@ -10,13 +10,13 @@ Metric 3 — Email Quality Score    (LLM-as-Judge via Claude Haiku)
 
 import os
 import re
-import anthropic
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use a fast, cheap judge model — keeps evaluation cost low
-JUDGE_MODEL = "claude-haiku-4-5"
+# Use a fast, cheap Groq judge model — keeps evaluation cost low
+JUDGE_MODEL = "llama3-8b-8192"
 
 # Common stop words to exclude from fact token matching
 STOP_WORDS = {
@@ -123,22 +123,21 @@ Respond with ONLY a single integer between 1 and 10. No explanation."""
 
 def tone_alignment_score(tone: str, email_text: str) -> float:
     """
-    Compute Tone Alignment Score using Claude Haiku as judge.
+    Compute Tone Alignment Score using Groq (llama3-8b-8192) as judge.
 
     Returns a float in [0.0, 1.0].
     """
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
     prompt = _TONE_JUDGE_PROMPT.format(tone=tone, email=email_text)
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=JUDGE_MODEL,
         max_tokens=10,
         messages=[{"role": "user", "content": prompt}],
     )
 
-    raw = response.content[0].text.strip()
-    # Extract the first integer found
+    raw = response.choices[0].message.content.strip()
     match = re.search(r"\b([1-9]|10)\b", raw)
     score_int = int(match.group(1)) if match else 5
     return round(score_int / 10.0, 4)
@@ -186,21 +185,21 @@ Respond with ONLY a single integer between 1 and 10. No explanation."""
 
 def email_quality_score(email_text: str) -> float:
     """
-    Compute Email Quality Score using Claude Haiku as judge.
+    Compute Email Quality Score using Groq (llama3-8b-8192) as judge.
 
     Returns a float in [0.0, 1.0].
     """
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
     prompt = _QUALITY_JUDGE_PROMPT.format(email=email_text)
 
-    response = client.messages.create(
+    response = client.chat.completions.create(
         model=JUDGE_MODEL,
         max_tokens=10,
         messages=[{"role": "user", "content": prompt}],
     )
 
-    raw = response.content[0].text.strip()
+    raw = response.choices[0].message.content.strip()
     match = re.search(r"\b([1-9]|10)\b", raw)
     score_int = int(match.group(1)) if match else 5
     return round(score_int / 10.0, 4)

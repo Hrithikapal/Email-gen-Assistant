@@ -10,6 +10,7 @@ Advanced Prompting Technique: Triple-Layer Prompting
 import os
 from dotenv import load_dotenv
 import anthropic
+from groq import Groq
 
 load_dotenv()
 
@@ -130,23 +131,23 @@ def generate_email(
     tone: str,
     model: str = "claude-opus-4-6",
     use_advanced_prompting: bool = True,
+    provider: str = "anthropic",
 ) -> dict:
     """
-    Generate a professional email using the Anthropic Claude API.
+    Generate a professional email using either the Anthropic or Groq API.
 
     Args:
         intent:                 Core purpose of the email.
         key_facts:              List of bullet-point facts to include.
         tone:                   Desired tone (e.g. "formal", "casual", "urgent").
-        model:                  Claude model ID.
+        model:                  Model ID for the chosen provider.
         use_advanced_prompting: If True, uses Role-Playing + Few-Shot + CoT.
                                 If False, uses a simple baseline prompt.
+        provider:               "anthropic" or "groq".
 
     Returns:
         dict with keys: "email_text", "model", "input_tokens", "output_tokens"
     """
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-
     facts_formatted = "\n".join(f"  - {f}" for f in key_facts)
 
     if use_advanced_prompting:
@@ -158,7 +159,6 @@ def generate_email(
             + f"Tone: {tone}"
         )
     else:
-        # Baseline: simple zero-shot prompt, no persona, no examples
         system = "You are a helpful assistant that writes professional emails."
         user_content = (
             f"Write a professional email.\n\n"
@@ -168,26 +168,41 @@ def generate_email(
             f"Include a Subject line and keep it concise."
         )
 
-    response = client.messages.create(
-        model=model,
-        max_tokens=1024,
-        system=system,
-        messages=[{"role": "user", "content": user_content}],
-    )
-
-    email_text = response.content[0].text
+    if provider == "groq":
+        client = Groq(api_key=os.environ["GROQ_API_KEY"])
+        response = client.chat.completions.create(
+            model=model,
+            max_tokens=1024,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_content},
+            ],
+        )
+        email_text = response.choices[0].message.content
+        input_tokens = response.usage.prompt_tokens
+        output_tokens = response.usage.completion_tokens
+    else:
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        response = client.messages.create(
+            model=model,
+            max_tokens=1024,
+            system=system,
+            messages=[{"role": "user", "content": user_content}],
+        )
+        email_text = response.content[0].text
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
 
     # Strip CoT reasoning — keep only the email (after the last "---" separator)
     if use_advanced_prompting and "---" in email_text:
         parts = email_text.split("---")
-        # The last non-empty segment is the actual email
         email_text = parts[-1].strip()
 
     return {
         "email_text": email_text,
         "model": model,
-        "input_tokens": response.usage.input_tokens,
-        "output_tokens": response.usage.output_tokens,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
     }
 
 
