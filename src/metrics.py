@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Use a fast, cheap Groq judge model — keeps evaluation cost low
-JUDGE_MODEL = "llama3-8b-8192"
+JUDGE_MODEL = "llama-3.1-8b-instant"
 
 # Common stop words to exclude from fact token matching
 STOP_WORDS = {

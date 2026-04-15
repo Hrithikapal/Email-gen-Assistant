@@ -25,10 +25,10 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "outputs")
 
 
 def run_evaluation(
-    model: str = "claude-opus-4-6",
+    model: str = "llama-3.3-70b-versatile",
     use_advanced_prompting: bool = True,
     output_tag: str = "model_a",
-    provider: str = "anthropic",
+    provider: str = "groq",
 ) -> dict:
     """
     Run the full evaluation pipeline.
@@ -174,11 +174,12 @@ def save_csv(data: dict, filepath: str) -> None:
 
 
 if __name__ == "__main__":
-    tag = "model_a_opus_advanced"
+    tag = "model_a_llama_advanced"
     eval_data = run_evaluation(
-        model="claude-opus-4-6",
+        model="llama-3.3-70b-versatile",
         use_advanced_prompting=True,
         output_tag=tag,
+        provider="groq",
     )
 
     json_path = os.path.join(OUTPUT_DIR, f"evaluation_{tag}.json")
