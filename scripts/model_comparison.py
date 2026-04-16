@@ -204,7 +204,7 @@ def build_analysis_report(comparison: dict) -> str:
 
 **{winner_label}** is the clear winner across all three custom metrics.
 
-| Metric                  | Model A (Opus + Advanced) | Model B (Haiku + Simple) | Delta |
+| Metric                  | Model A (70B + Advanced) | Model B (8B + Simple) | Delta |
 |-------------------------|:-------------------------:|:------------------------:|:-----:|
 | Fact Coverage Score     | {avg_a['fact_coverage_score']:.4f} | {avg_b['fact_coverage_score']:.4f} | {avg_a['fact_coverage_score'] - avg_b['fact_coverage_score']:+.4f} |
 | Tone Alignment Score    | {avg_a['tone_alignment_score']:.4f} | {avg_b['tone_alignment_score']:.4f} | {avg_a['tone_alignment_score'] - avg_b['tone_alignment_score']:+.4f} |
@@ -224,7 +224,7 @@ where Model B's composite score was
 (gap: {worst_b['model_a']['composite_score'] - worst_b['model_b']['composite_score']:+.4f}).
 
 **Root cause analysis:**
-Model B (Haiku + zero-shot) exhibits a consistent pattern of **fact omission combined with tone
+Model B (llama-3.1-8b-instant + zero-shot) exhibits a consistent pattern of **fact omission combined with tone
 drift**. Without role-playing to anchor its communication style, the model defaults to a generic
 "helpful assistant" register that does not reliably match specialised tones (e.g., urgency or
 empathy). Without few-shot examples, it has no structural template to follow, leading to emails
@@ -241,7 +241,7 @@ Specific failure patterns observed:
 
 ## 3. Production Recommendation
 
-**Recommended for production: Model A** (`claude-opus-4-6` with Role-Playing + Few-Shot + CoT).
+**Recommended for production: Model A** (`llama-3.3-70b-versatile` with Role-Playing + Few-Shot + CoT).
 
 **Justification using metric data:**
 
@@ -259,8 +259,8 @@ Specific failure patterns observed:
    calls-to-action) is directly attributable to the Chain-of-Thought step, which forces Model A to
    plan before drafting, resulting in more coherent, better-organised emails.
 
-**Trade-off note:** Model A costs more per request (Opus vs Haiku) and has higher latency. For
-high-volume or latency-sensitive deployments, the recommended approach is to fine-tune Haiku on
+**Trade-off note:** Model A (70B) has higher latency than Model B (8B). For
+high-volume or latency-sensitive deployments, the recommended approach is to fine-tune the 8B model on
 Model A's outputs or to use Model A for the advanced prompting run and distil its style into a
 lighter model. However, for quality-critical use cases (client communications, executive emails,
 customer apologies), Model A is the unambiguous choice.

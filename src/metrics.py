@@ -4,8 +4,8 @@ Custom Evaluation Metrics
 Three metrics purpose-built for email generation quality assessment.
 
 Metric 1 — Fact Coverage Score    (Automated, keyword overlap)
-Metric 2 — Tone Alignment Score   (LLM-as-Judge via Claude Haiku)
-Metric 3 — Email Quality Score    (LLM-as-Judge via Claude Haiku)
+Metric 2 — Tone Alignment Score   (LLM-as-Judge via Mixtral 8x7B)
+Metric 3 — Email Quality Score    (LLM-as-Judge via Mixtral 8x7B)
 """
 
 import os
@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use a fast, cheap Groq judge model — keeps evaluation cost low
-JUDGE_MODEL = "llama-3.1-8b-instant"
+# Use a neutral judge model that is NOT Model A or Model B to avoid bias
+JUDGE_MODEL = "mixtral-8x7b-32768"
 
 # Common stop words to exclude from fact token matching
 STOP_WORDS = {
@@ -93,7 +93,7 @@ METRIC_2_DEFINITION = {
     "name": "Tone Alignment Score",
     "type": "LLM-as-Judge",
     "description": (
-        "Uses Claude Haiku as an impartial judge to rate how well the "
+        "Uses Mixtral 8x7B as an impartial judge to rate how well the "
         "generated email's actual tone matches the requested tone. "
         "The judge assigns a score from 1 (completely mismatched) to 10 "
         "(perfectly aligned), which is normalised to 0.0–1.0. "
@@ -123,7 +123,7 @@ Respond with ONLY a single integer between 1 and 10. No explanation."""
 
 def tone_alignment_score(tone: str, email_text: str) -> float:
     """
-    Compute Tone Alignment Score using Groq (llama3-8b-8192) as judge.
+    Compute Tone Alignment Score using Groq (mixtral-8x7b-32768) as judge.
 
     Returns a float in [0.0, 1.0].
     """
@@ -150,7 +150,7 @@ METRIC_3_DEFINITION = {
     "name": "Email Quality Score",
     "type": "LLM-as-Judge",
     "description": (
-        "Uses Claude Haiku as an impartial judge to rate the holistic quality "
+        "Uses Mixtral 8x7B as an impartial judge to rate the holistic quality "
         "of the generated email across five sub-dimensions: "
         "(1) Subject line effectiveness, "
         "(2) Structure and flow (greeting → body → closing), "
@@ -185,7 +185,7 @@ Respond with ONLY a single integer between 1 and 10. No explanation."""
 
 def email_quality_score(email_text: str) -> float:
     """
-    Compute Email Quality Score using Groq (llama3-8b-8192) as judge.
+    Compute Email Quality Score using Groq (mixtral-8x7b-32768) as judge.
 
     Returns a float in [0.0, 1.0].
     """
