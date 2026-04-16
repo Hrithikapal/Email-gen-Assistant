@@ -4,8 +4,7 @@ Evaluation Runner
 Runs all 10 test scenarios through the email generator, scores each result
 using the 3 custom metrics, and outputs structured reports (JSON + CSV).
 
-Usage:
-    python src/evaluator.py
+This module is imported by scripts/model_comparison.py to evaluate both models.
 """
 
 import os
@@ -174,18 +173,5 @@ def save_csv(data: dict, filepath: str) -> None:
 
 
 if __name__ == "__main__":
-    tag = "model_a_llama_advanced"
-    eval_data = run_evaluation(
-        model="llama-3.3-70b-versatile",
-        use_advanced_prompting=True,
-        output_tag=tag,
-        provider="groq",
-    )
-
-    json_path = os.path.join(OUTPUT_DIR, f"evaluation_{tag}.json")
-    csv_path  = os.path.join(OUTPUT_DIR, f"evaluation_{tag}.csv")
-
-    save_json(eval_data, json_path)
-    save_csv(eval_data, csv_path)
-
-    print("\nEvaluation complete.")
+    print("Use 'python scripts/model_comparison.py' to run the full comparison.")
+    print("This module provides run_evaluation(), save_json(), and save_csv() for model_comparison.py.")

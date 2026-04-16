@@ -2,9 +2,9 @@
 Email Generation Assistant — Core Generator
 ============================================
 Advanced Prompting Technique: Triple-Layer Prompting
-  1. Role-Playing  — Claude acts as a Senior Business Communication Specialist
+  1. Role-Playing  — The LLM acts as a Senior Business Communication Specialist
   2. Few-Shot       — Three annotated example emails embedded in the system prompt
-  3. Chain-of-Thought (CoT) — Claude reasons through intent→facts→tone before writing
+  3. Chain-of-Thought (CoT) — The LLM reasons through intent→facts→tone before writing
 """
 
 import os
